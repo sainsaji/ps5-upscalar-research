@@ -5,7 +5,9 @@ captures, losslessly.
 Input  comparisons/<set>/full/<mode>.png   3840x2160 scanout captures
 Output comparisons/<set>/crop_<mode>.png  1:1 crop of the most detailed window
        comparisons/<set>/strip.png        those crops side by side
-       comparisons/<set>/zoom.png         3x nearest-neighbour zoom (no resampling)
+       comparisons/<set>/zoom_<mode>.png  3x nearest-neighbour zoom of one mode, 720x405 -
+                                          narrow enough for GitHub to show 1:1
+       comparisons/<set>/zoom.png         all zooms on one sheet
        comparisons/<set>/grid.png         network x (Off | AI | Sharp) grid
        comparisons/<set>/metrics.md       difference statistics
 
@@ -109,6 +111,10 @@ def build(set_dir: Path) -> None:
     zooms = [(MODES[m], crops[m].crop((zx, zy, zx + ZOOM_W, zy + ZOOM_H))
               .resize((ZOOM_W * 3, ZOOM_H * 3), Image.NEAREST)) for m in modes]
     labelled(zooms, cols=min(3, len(zooms))).save(set_dir / "zoom.png", optimize=True)
+    # One file per mode: GitHub scales anything wider than its ~830 px column,
+    # which blurs a sheet. 720 px wide renders pixel for pixel.
+    for m, (_, z) in zip(modes, zooms):
+        z.save(set_dir / f"zoom_{m}.png", optimize=True)
 
     # Grid: one row per AI network present, columns Off | AI | Sharp.
     nets = [m for m in ("ai-standard", "ai-large", "ai-maximum") if m in modes]

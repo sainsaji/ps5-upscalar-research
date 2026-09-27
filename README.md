@@ -13,11 +13,33 @@ Everything here was measured on a **PS5 Pro** (firmware 12.70) driving a 4K
 HDR TV. Every comparison image is a **lossless, pixel-exact capture of the
 console's scanout**.
 
-![Big Buck Bunny 540p web encode, upscaled 4x to 4K: Off, Sharp and the three AI networks (3x nearest-neighbour zoom)](comparisons/bbb-540p-web/zoom.png)
+*Big Buck Bunny, 540p web encode (1.6 Mbps) → 4K, a 4× upscale. The same
+region of the same frame in every mode, shown at 3× nearest-neighbour so each
+output pixel is visible. Each image is 720 px wide, so GitHub shows it pixel
+for pixel.*
 
-*540p web encode (1.6 Mbps) → 4K, a 4× upscale. The crop is shown at 3×
-nearest-neighbour so individual output pixels are visible. Off is plain
-bilinear. Sharp is FSR 1. The AI rows are Anime4K S, M and UL.*
+**Off (bilinear)**
+
+![Off (bilinear)](comparisons/bbb-540p-web/zoom_off.png)
+
+**Sharp (FSR 1)**
+
+![Sharp (FSR 1)](comparisons/bbb-540p-web/zoom_sharp.png)
+
+**AI Standard (Anime4K S)**
+
+![AI Standard (Anime4K S)](comparisons/bbb-540p-web/zoom_ai-standard.png)
+
+**AI Large (Anime4K M)**
+
+![AI Large (Anime4K M)](comparisons/bbb-540p-web/zoom_ai-large.png)
+
+**AI Maximum (Anime4K UL)**
+
+![AI Maximum (Anime4K UL)](comparisons/bbb-540p-web/zoom_ai-maximum.png)
+
+All five on one sheet: [`zoom.png`](comparisons/bbb-540p-web/zoom.png). More
+clips: [docs/01-results.md](docs/01-results.md).
 
 ---
 
@@ -100,7 +122,8 @@ comparisons/<set>/
     full/<mode>.png      3840x2160 lossless scanout capture, one per mode
     crop_<mode>.png      1:1 crop of the most detailed window
     strip.png            those crops side by side
-    zoom.png             3x nearest-neighbour zoom
+    zoom_<mode>.png      3x nearest-neighbour zoom of one mode (720 px, shown 1:1)
+    zoom.png             all the zooms on one sheet
     grid.png             per network: Off | AI | Sharp
     metrics.md           difference statistics
     set.json             source, scale factor, frame pts

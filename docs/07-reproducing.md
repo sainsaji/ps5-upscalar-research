@@ -52,8 +52,8 @@ python tools/build_comparisons.py bbb-540p-web # one set
 
 The script reads only `comparisons/<set>/full/*.png`, the lossless captures. It
 finds the most detailed 640×360 window in the Off frame (highest edge energy)
-and writes `crop_*.png`, `strip.png`, `zoom.png` (3× nearest-neighbour),
-`grid.png` and `metrics.md`.
+and writes `crop_*.png`, `zoom_*.png` (3× nearest-neighbour, one per mode),
+the `strip.png` / `zoom.png` / `grid.png` sheets, and `metrics.md`.
 
 ## On a console
 

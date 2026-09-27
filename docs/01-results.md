@@ -2,8 +2,9 @@
 
 All images on this page are **lossless PNG crops of the PS5's scanout**, taken
 3840×2160 straight from the frame the console presented. Nothing is
-resampled, except the zoom sheets, which use nearest-neighbour so you see the
-real output pixels. The full frames live in `comparisons/<set>/full/`.
+resampled: the zooms use nearest-neighbour, so you see the real output pixels.
+Each image is at most 720 px wide, so GitHub shows it pixel for pixel. The
+full frames live in `comparisons/<set>/full/`.
 
 ## How the captures were taken
 
@@ -40,17 +41,30 @@ are trained for.
 
 ## 540p web encode → 4K (4×)
 
-The hardest case, and where the networks earn their keep.
+The hardest case, and where the networks earn their keep. Each image is the
+same region at 3× nearest-neighbour:
 
-![540p zoom](../comparisons/bbb-540p-web/zoom.png)
+#### Off (bilinear)
 
-1:1 crops, one per mode:
+![Off (bilinear)](../comparisons/bbb-540p-web/zoom_off.png)
 
-![540p strip](../comparisons/bbb-540p-web/strip.png)
+#### Sharp (FSR 1)
 
-Per network: Off | AI | Sharp.
+![Sharp (FSR 1)](../comparisons/bbb-540p-web/zoom_sharp.png)
 
-![540p grid](../comparisons/bbb-540p-web/grid.png)
+#### AI Standard (Anime4K S)
+
+![AI Standard (Anime4K S)](../comparisons/bbb-540p-web/zoom_ai-standard.png)
+
+#### AI Large (Anime4K M)
+
+![AI Large (Anime4K M)](../comparisons/bbb-540p-web/zoom_ai-large.png)
+
+#### AI Maximum (Anime4K UL)
+
+![AI Maximum (Anime4K UL)](../comparisons/bbb-540p-web/zoom_ai-maximum.png)
+
+Sheets: [all modes](../comparisons/bbb-540p-web/zoom.png) · [1:1 crops side by side](../comparisons/bbb-540p-web/strip.png) · [Off | AI | Sharp per network](../comparisons/bbb-540p-web/grid.png)
 
 - **Off** smears the grass into a green wash.
 - **Sharp (FSR)** restores edge contrast, but also sharpens the x264 blocking,
@@ -62,17 +76,53 @@ Metrics: [`metrics.md`](../comparisons/bbb-540p-web/metrics.md).
 
 ## 720p web encode → 4K (3×)
 
-![720p zoom](../comparisons/bbb-720p-web/zoom.png)
+#### Off (bilinear)
 
-![720p grid](../comparisons/bbb-720p-web/grid.png)
+![Off (bilinear)](../comparisons/bbb-720p-web/zoom_off.png)
+
+#### Sharp (FSR 1)
+
+![Sharp (FSR 1)](../comparisons/bbb-720p-web/zoom_sharp.png)
+
+#### AI Standard (Anime4K S)
+
+![AI Standard (Anime4K S)](../comparisons/bbb-720p-web/zoom_ai-standard.png)
+
+#### AI Large (Anime4K M)
+
+![AI Large (Anime4K M)](../comparisons/bbb-720p-web/zoom_ai-large.png)
+
+#### AI Maximum (Anime4K UL)
+
+![AI Maximum (Anime4K UL)](../comparisons/bbb-720p-web/zoom_ai-maximum.png)
+
+Sheets: [all modes](../comparisons/bbb-720p-web/zoom.png) · [grid](../comparisons/bbb-720p-web/grid.png)
 
 The same ordering as 540p, slightly less dramatic.
 
 ## 1080p clean → 4K (2×)
 
-![1080p zoom](../comparisons/bbb-1080p/zoom.png)
+#### Off (bilinear)
 
-![1080p grid](../comparisons/bbb-1080p/grid.png)
+![Off (bilinear)](../comparisons/bbb-1080p/zoom_off.png)
+
+#### Sharp (FSR 1)
+
+![Sharp (FSR 1)](../comparisons/bbb-1080p/zoom_sharp.png)
+
+#### AI Standard (Anime4K S)
+
+![AI Standard (Anime4K S)](../comparisons/bbb-1080p/zoom_ai-standard.png)
+
+#### AI Large (Anime4K M)
+
+![AI Large (Anime4K M)](../comparisons/bbb-1080p/zoom_ai-large.png)
+
+#### AI Maximum (Anime4K UL)
+
+![AI Maximum (Anime4K UL)](../comparisons/bbb-1080p/zoom_ai-maximum.png)
+
+Sheets: [all modes](../comparisons/bbb-1080p/zoom.png) · [grid](../comparisons/bbb-1080p/grid.png)
 
 With a clean source and only 2×, everything is a clear step up from bilinear.
 FSR gives the most edge contrast. The networks give a smoother, more natural
@@ -82,7 +132,17 @@ result with fewer halos. On this source they mostly agree with each other.
 
 Captured with an earlier build, so only Off, Sharp and AI Standard exist.
 
-![Tears of Steel strip](../comparisons/tears-of-steel/strip.png)
+#### Off (bilinear)
+
+![Off (bilinear)](../comparisons/tears-of-steel/zoom_off.png)
+
+#### Sharp (FSR 1)
+
+![Sharp (FSR 1)](../comparisons/tears-of-steel/zoom_sharp.png)
+
+#### AI Standard (Anime4K S)
+
+![AI Standard (Anime4K S)](../comparisons/tears-of-steel/zoom_ai-standard.png)
 
 FSR crisps the brass controls. Anime4K S is only a small step past bilinear.
 That's expected: it was trained on anime line art, not photographic texture.
