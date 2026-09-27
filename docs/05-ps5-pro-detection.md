@@ -61,12 +61,11 @@ to run unless `sceKernelIsTrinityMode()` is true:
   the standard `sha1(name + suffix)` scheme and checked against known pairs.
 - **It's a plain libkernel export.** `libScePsml` imports it as `#G#H`, its
   libkernel module/library record, the same slot as `sceKernelUsleep`.
-- **So an app can import it directly.** Link against a one-line stub that
-  exports it under SONAME `libkernel.sprx`. The resulting import record matches
-  Sony's own library exactly.
-- **The risk.** If the firmware's libkernel doesn't export the name to apps,
-  the loader rejects the whole module at start. That is recoverable by
-  rebuilding without the stub.
+- **But an app can't import it.** A one-line link stub (SONAME
+  `libkernel.sprx`) produced an import record identical to Sony's own library,
+  `tU5e3f9gSiU#G#H`. The loader **rejected EVO at launch**: no log was
+  written, and the app crashed before `main()`. libkernel exports this
+  function to system modules, not to fake-signed apps.
 
 The title also has to *be* in Pro mode. Every PS5 Pro-enhanced game on the test
 console carries two things in its `param.json` that non-enhanced titles lack:
@@ -81,9 +80,9 @@ console carries two things in its `param.json` that non-enhanced titles lack:
 
 Bit **`0x00400000`** of `attribute3` is the only one all three Pro titles share
 and EVO lacks. It is the likely "PS5 Pro enhanced" flag. With it and the `psml`
-block added, EVO still launches normally. Whether the system actually puts EVO
-in Trinity mode is what the direct `sceKernelIsTrinityMode` import answers
-(test pending).
+block added, EVO still launches normally. But with `dlsym` dead and the direct
+import refused, EVO has no way to observe whether it's in Trinity mode, so
+the flags were not kept.
 
 ## The fix: let the user choose
 
@@ -106,8 +105,10 @@ code and runs on any PS5, so EVO's **Settings → AI NETWORK** offers:
 
 ## Open questions
 
-- **Does the direct import resolve, and does it return 1** with the Pro-mode
-  flags set? That is the next hardware run.
+- **A readable source for the model.** A sysctl, a VideoOut or system-service
+  query, anything read-only that works from an app module, would make Auto
+  meaningful. The three Trinity queries are out of reach: `dlsym` is dead and a
+  direct import is refused.
 - **Sony's single-image upscaler.** The `scePsmlBcSisr*` API (Init,
   BuildPacket, GetTexture, Term; model `BCSISR_v070.psp`, a U-Net) is exported
   only by `/system/priv/lib/libScePsmlBcSisr.sprx`, which fake-signed apps

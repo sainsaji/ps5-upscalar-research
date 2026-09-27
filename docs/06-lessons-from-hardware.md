@@ -103,5 +103,6 @@ looked like "libkernel hides them from apps". It wasn't. A lookup of
 One control call turned a wrong conclusion into the right one.
 
 The practical answer was a manual AI NETWORK setting, protected by the budget
-fallback. The query that matters, `sceKernelIsTrinityMode`, is now imported
-directly instead. See [05 — PS5 Pro detection](05-ps5-pro-detection.md).
+fallback. The query that matters, `sceKernelIsTrinityMode`, can't be
+imported directly either: the loader rejects the app at launch. See
+[05 — PS5 Pro detection](05-ps5-pro-detection.md).
