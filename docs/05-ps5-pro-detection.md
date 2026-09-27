@@ -29,27 +29,61 @@ Code: [`examples/runtime/evo_hw.c`](../examples/runtime/evo_hw.c).
 
 ```
 hw: dlsym sceKernelHasTrinityMode handle=0x2001 rc_name=0x80020003 rc_nid=0x80020003
-hw: dlsym sceKernelHasTrinityMode handle=0x2 rc_name=0x80020003 rc_nid=0x80020003
 hw: load libkernel_sys.sprx -> 0x80020002
-hw: dlsym sceKernelHasTrinityMode handle=0x2001 rc_name=0x80020003 rc_nid=0x80020003
 hw: dlsym sceKernelIsAuthenticTrinity handle=0x2001 rc_name=0x80020003 rc_nid=0x80020003
-...
+hw: dlsym control sceKernelUsleep -> not found (0)
 hw: ps5 pro=? trinity_mode=? authentic=?
 ```
 
-- **`0x80020003` is ESRCH.** Handle `0x2001` is libkernel: loading
-  `libkernel.sprx` by name hands back that same handle. So libkernel is found,
-  but it doesn't export these symbols to a fake-signed app. The failure is the
-  same by name and by NID.
-- **`0x80020002` is ENOENT.** `libkernel_sys.sprx`, which likely does export
-  them, can't be loaded from an app module.
+- **`0x80020003` is ESRCH, and it means nothing about Trinity.** A control
+  lookup of `sceKernelUsleep`, a libkernel function EVO calls every frame,
+  fails with the same code. **`sceKernelDlsym` resolves nothing from a
+  fake-signed app module on this firmware.** That holds by name and by NID,
+  on handles `0x2001` and `0x2`, and on the handle `sceKernelLoadStartModule`
+  returns for `libkernel.sprx`.
+- **`0x80020002` is ENOENT.** `libkernel_sys.sprx` can't be loaded from an app
+  module.
 
-So **from a homebrew app, these queries are unreachable on this firmware**, and
-the console is reported as "model unknown".
+An earlier version of this page blamed libkernel for hiding the Trinity
+functions. The control lookup showed that was wrong: the lookup mechanism
+itself is unusable.
 
-Worth checking before relying on a stub: `llvm-nm -D` on the SDK's
-`libkernel*.so` shows `sceKernelDlsym` and `sceKernelLoadStartModule` present,
-and neither Trinity function.
+## Which query matters, and how to ask it
+
+Sony's own PSSR library (`libScePsml.sprx`, in `/system/common/lib`) refuses
+to run unless `sceKernelIsTrinityMode()` is true:
+
+```
+[PSML] MFSR isn't supported in sceKernelIsTrinityMode() == 0
+```
+
+- **The NID.** `sceKernelIsTrinityMode` is NID `tU5e3f9gSiU`, computed with
+  the standard `sha1(name + suffix)` scheme and checked against known pairs.
+- **It's a plain libkernel export.** `libScePsml` imports it as `#G#H`, its
+  libkernel module/library record, the same slot as `sceKernelUsleep`.
+- **So an app can import it directly.** Link against a one-line stub that
+  exports it under SONAME `libkernel.sprx`. The resulting import record matches
+  Sony's own library exactly.
+- **The risk.** If the firmware's libkernel doesn't export the name to apps,
+  the loader rejects the whole module at start. That is recoverable by
+  rebuilding without the stub.
+
+The title also has to *be* in Pro mode. Every PS5 Pro-enhanced game on the test
+console carries two things in its `param.json` that non-enhanced titles lack:
+
+| Title | `psml` | `attribute3` |
+|---|---|---|
+| Avatar: Frontiers of Pandora | `{"mfsrVersion": "11.00"}` | `0x08400040` |
+| The Last of Us Part I | `{"mfsrVersion": "09.60"}` | `0x004400D4` |
+| Assassin's Creed Shadows | `{"mfsrVersion": "11.00"}` | `0x08440054` |
+| Alan Wake Remastered (not enhanced) | — | `0` |
+| EVO Player | — | `0x00080040` |
+
+Bit **`0x00400000`** of `attribute3` is the only one all three Pro titles share
+and EVO lacks. It is the likely "PS5 Pro enhanced" flag. With it and the `psml`
+block added, EVO still launches normally. Whether the system actually puts EVO
+in Trinity mode is what the direct `sceKernelIsTrinityMode` import answers
+(test pending).
 
 ## The fix: let the user choose
 
@@ -72,12 +106,13 @@ code and runs on any PS5, so EVO's **Settings → AI NETWORK** offers:
 
 ## Open questions
 
-- **Another source for the model.** Candidates: a model-name call, a sysctl
-  model string, or the CFI-7xxx model number. Anything that works from an app
-  module would make Auto meaningful.
-- **Whether a Pro-enhanced title flag changes the answer.** `HasTrinityMode`
-  is about the *title* running in Pro mode.
-- **PSSR / PSML.** Sony's own ML upscaler on the Pro lives behind a system
-  library. Whether an app module can reach it is untested. It would need the
-  module to be in `/system/common/lib`; `/system/priv/lib` is off-limits to
-  fake-signed apps.
+- **Does the direct import resolve, and does it return 1** with the Pro-mode
+  flags set? That is the next hardware run.
+- **Sony's single-image upscaler.** The `scePsmlBcSisr*` API (Init,
+  BuildPacket, GetTexture, Term; model `BCSISR_v070.psp`, a U-Net) is exported
+  only by `/system/priv/lib/libScePsmlBcSisr.sprx`, which fake-signed apps
+  can't import. It links against the system shell's graphics library, not the
+  game-side `libSceAgc`. It is Sony's system-level upscaler, not an app API.
+- **PSSR itself** (`scePsmlMfsr*` in the importable `libScePsml`) is temporal
+  and needs a game's motion vectors, depth and jitter. Decoded video has none
+  of these.

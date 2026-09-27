@@ -1,0 +1,16 @@
+# libkernel — additions the SDK's libkernel.so stub does not carry.
+#
+# SONAME libkernel.sprx, so the converter maps these onto the real libkernel
+# module exactly like the SDK stub's own symbols.
+#
+# sceKernelIsTrinityMode (NID tU5e3f9gSiU): is this title running in PS5 Pro
+# ("Trinity") mode. It is a plain libkernel export: Sony's game-side
+# libScePsml (PSSR) imports it from the SAME library slot as sceKernelUsleep.
+# EVO cannot reach it any other way - sceKernelDlsym fails for every name from
+# an app module, even sceKernelUsleep (hw-proven 2026-09-26).
+# See docs/hardware/psml-research.md.
+#
+# One symbol only: a name the firmware's libkernel does not export makes the
+# loader reject the whole module (CE-108255-1, no log). If a build with this
+# line does not launch, this line is why - remove it.
+sceKernelIsTrinityMode

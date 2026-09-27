@@ -8,11 +8,19 @@
 #include <stdint.h>
 
 int sceKernelDlsym(int moduleHandle, const char *symbol, void **addrOut);
+/* Imported directly (tools/native-app/stubs/prx/libkernel.syms): dlsym cannot
+ * resolve anything from an app module, this is a plain libkernel export, and
+ * it is what libScePsml gates PSSR on. Declared as returning int; only the low
+ * byte is meaningful, as with the others. */
+#if defined(EVO_APP_MODULE)
+int sceKernelIsTrinityMode(void);
+#endif
 int sceKernelLoadStartModule(const char *name, size_t argc, const void *argv,
                              unsigned int flags, void *opt, int *res);
 
 static int s_probed;
 static int s_trinity_mode = EVO_HW_UNKNOWN;
+static int s_is_trinity   = EVO_HW_UNKNOWN;
 static int s_authentic    = EVO_HW_UNKNOWN;
 
 /* libkernel's module handle. 0x2001 is where the PS5 loader puts libkernel_sys
@@ -79,12 +87,31 @@ void evo_hw_probe(void)
         return;
     s_probed = 1;
     s_trinity_mode = query("sceKernelHasTrinityMode", "yu17wG8L5FI");
+    /* The one libScePsml (PSSR) actually gates on - it imports this, not
+     * HasTrinityMode. NID computed from the name; see psml-research.md. */
+#if defined(EVO_APP_MODULE)
+    {
+        const int raw = sceKernelIsTrinityMode();
+        s_is_trinity = ((uint32_t)raw & 0x80000000u) ? EVO_HW_UNKNOWN
+                                                     : (((uint32_t)raw & 0xffu) ? 1 : 0);
+        evo_boot_log("hw: sceKernelIsTrinityMode() = %#x (direct import)", (unsigned)raw);
+    }
+#endif
     s_authentic    = query("sceKernelIsAuthenticTrinity", "X0HkB92+NRE");
+
+    /* Control: a libkernel function EVO already imports, so it certainly
+     * exists. If dlsym cannot find even this, the Trinity misses say nothing
+     * about the Trinity functions - dlsym itself is unusable here. */
+    {
+        void *fn = NULL;
+        const int found = resolve("sceKernelUsleep", "1jfXLRVzisc", &fn) == 0;
+        evo_boot_log("hw: dlsym control sceKernelUsleep -> %s (%p)",
+                     found ? "FOUND" : "not found", fn);
+    }
     const int pro = evo_hw_is_ps5_pro();
-    evo_boot_log("hw: ps5 pro=%c trinity_mode=%c authentic=%c",
-                 (s_trinity_mode == EVO_HW_UNKNOWN && s_authentic == EVO_HW_UNKNOWN)
-                     ? '?' : (pro ? '1' : '0'),
-                 tri(s_trinity_mode), tri(s_authentic));
+    evo_boot_log("hw: ps5 pro=%c trinity_mode=%c is_trinity=%c authentic=%c",
+                 evo_hw_model_known() ? (pro ? '1' : '0') : '?',
+                 tri(s_trinity_mode), tri(s_is_trinity), tri(s_authentic));
 }
 
 /* Authentic Trinity hardware is a Pro. When that query alone is missing, a
@@ -93,15 +120,18 @@ int evo_hw_is_ps5_pro(void)
 {
     if (s_authentic != EVO_HW_UNKNOWN)
         return s_authentic == 1;
-    return s_trinity_mode == 1;
+    return s_trinity_mode == 1 || s_is_trinity == 1;
 }
 
 int evo_hw_trinity_mode(void)      { return s_trinity_mode; }
 int evo_hw_authentic_trinity(void) { return s_authentic; }
 
+/* IsTrinityMode() == 0 does not prove a base PS5: a Pro running a title that
+ * is not in Pro mode says 0 too. Only a 1 identifies the model. */
 int evo_hw_model_known(void)
 {
-    return s_trinity_mode != EVO_HW_UNKNOWN || s_authentic != EVO_HW_UNKNOWN;
+    return s_trinity_mode != EVO_HW_UNKNOWN || s_is_trinity == 1 ||
+           s_authentic != EVO_HW_UNKNOWN;
 }
 
 const char *evo_hw_model_name(void)

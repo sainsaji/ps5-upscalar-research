@@ -94,8 +94,14 @@ bilinear is dramatic, while the gap between networks stays small. Bigger
 networks mostly clean up compression artefacts, so their value shows on
 low-bitrate anime, not on clean CGI or live action.
 
-## 7. PS5 Pro detection needs another route
+## 7. Add a control before trusting a negative
 
-See [05 — PS5 Pro detection](05-ps5-pro-detection.md). The Trinity queries
-aren't exported to a homebrew app on FW 12.70. The practical answer was a
-manual setting, protected by the budget fallback.
+The Trinity queries all failed through `sceKernelDlsym` with ESRCH, and that
+looked like "libkernel hides them from apps". It wasn't. A lookup of
+`sceKernelUsleep`, a function the app calls constantly, failed identically:
+`sceKernelDlsym` resolves nothing from a fake-signed app module on FW 12.70.
+One control call turned a wrong conclusion into the right one.
+
+The practical answer was a manual AI NETWORK setting, protected by the budget
+fallback. The query that matters, `sceKernelIsTrinityMode`, is now imported
+directly instead. See [05 — PS5 Pro detection](05-ps5-pro-detection.md).

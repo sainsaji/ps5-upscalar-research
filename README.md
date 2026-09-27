@@ -87,7 +87,7 @@ Deep dives:
 | [02 — The pipeline](docs/02-pipeline.md) | Where the stage hooks into the present path, scratch surfaces, barriers, fallbacks |
 | [03 — The networks](docs/03-networks.md) | FSR 1 port, translating Anime4K hooks, split accumulation, UL's wide layers, depth-to-space |
 | [04 — Shader toolchain](docs/04-shader-toolchain.md) | `.pipe` → amdllpc → PAL metadata → sceAgc, resource mapping, RGBA16F targets |
-| [05 — PS5 Pro detection](docs/05-ps5-pro-detection.md) | Trinity queries, why they fail from a homebrew app, the manual override |
+| [05 — PS5 Pro detection](docs/05-ps5-pro-detection.md) | Trinity queries, why `sceKernelDlsym` can't reach them, the direct import, Pro-mode `param.json` flags, Sony's PSML modules |
 | [06 — Lessons from hardware](docs/06-lessons-from-hardware.md) | Tiled render targets, CB/TC caches, timing, what broke and why |
 | [07 — Reproducing](docs/07-reproducing.md) | Capture a comparison on your console, rebuild every image, run the reference |
 
