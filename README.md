@@ -13,10 +13,19 @@ Everything here was measured on a **PS5 Pro** (firmware 12.70) driving a 4K
 HDR TV. Every comparison image is a **lossless, pixel-exact capture of the
 console's scanout**.
 
+> [!CAUTION]
+> **The images on this page are not full quality.** GitHub scales and
+> compresses images shown inside a README, so they look softer than what the
+> console produced. To see the real, lossless pixels, open an image file
+> directly, for example
+> [comparisons/bbb-1080p/grid.png](https://github.com/sainsaji/ps5-upscalar-research/blob/main/comparisons/bbb-1080p/grid.png).
+> Click **Raw** or **Download** there for the full-size file. Every capture set
+> is in [`comparisons/`](comparisons/), including the full 3840×2160 frames in
+> each set's `full/` folder.
+
 *Big Buck Bunny, 540p web encode (1.6 Mbps) → 4K, a 4× upscale. The same
 region of the same frame in every mode, shown at 3× nearest-neighbour so each
-output pixel is visible. Each image is 720 px wide, so GitHub shows it pixel
-for pixel.*
+output pixel is visible.*
 
 **Off (bilinear)**
 

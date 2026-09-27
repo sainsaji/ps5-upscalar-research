@@ -3,8 +3,13 @@
 All images on this page are **lossless PNG crops of the PS5's scanout**, taken
 3840×2160 straight from the frame the console presented. Nothing is
 resampled: the zooms use nearest-neighbour, so you see the real output pixels.
-Each image is at most 720 px wide, so GitHub shows it pixel for pixel. The
-full frames live in `comparisons/<set>/full/`.
+The full frames live in `comparisons/<set>/full/`.
+
+> [!CAUTION]
+> GitHub scales and compresses images shown on this page. For the real,
+> lossless pixels, open the files themselves, e.g.
+> [comparisons/bbb-1080p/grid.png](https://github.com/sainsaji/ps5-upscalar-research/blob/main/comparisons/bbb-1080p/grid.png),
+> then **Raw** or **Download**.
 
 ## How the captures were taken
 
